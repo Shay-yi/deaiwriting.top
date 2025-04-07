@@ -1,0 +1,21 @@
+import requests
+import json
+
+
+def main():
+        
+    url = "https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=BDfQuUahNpmuL9PcRvybsAZq&client_secret=pJvV7BqmJcTv2FONtUsjlmX3j7gwojMy"
+    
+    payload = json.dumps("", ensure_ascii=False)
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+    
+    response = requests.request("POST", url, headers=headers, data=payload.encode("utf-8"))
+    
+    print(response.text)
+    
+
+if __name__ == '__main__':
+    main()
