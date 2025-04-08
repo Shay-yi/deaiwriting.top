@@ -62,9 +62,7 @@ function App() {
   const t = translations[language];
   
   // API服务器地址 - 本地开发环境使用localhost，生产环境请修改为实际的API服务器地址
-  const API_SERVER = import.meta.env.PROD 
-    ? 'https://your-backend-server.com' // 生产环境API服务器
-    : 'http://localhost:3000';         // 开发环境API服务器
+  const API_SERVER = 'http://localhost:3000';  // 统一使用localhost作为API服务器地址
 
   useEffect(() => {
     if (isProcessing) {
@@ -181,7 +179,7 @@ function App() {
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-indigo-500"
                 placeholder={t.textPlaceholder}
               />
               <div className="mt-4 relative">
