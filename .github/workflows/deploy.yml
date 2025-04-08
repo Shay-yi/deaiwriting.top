@@ -25,6 +25,8 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Create Baidu verify file
+        run: echo "codeva-G3J1SCq1q" > dist/baidu_verify_codeva-G3J1SCq1q.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:

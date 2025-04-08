@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Wand2, FileText, ArrowRight, GraduationCap, Languages, Mail, X } from 'lucide-react';
+import './App.css';
 
 // Language translations
 const translations = {
@@ -60,9 +61,28 @@ function App() {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [progress, setProgress] = useState(0);
   const t = translations[language];
-  
-  // API服务器地址 - 本地开发环境使用localhost，生产环境请修改为实际的API服务器地址
-  const API_SERVER = 'http://localhost:3000';  // 统一使用localhost作为API服务器地址
+
+  // 检测用户地理位置
+  useEffect(() => {
+    const detectUserLocation = async () => {
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        
+        // 如果用户在中国大陆，设置为中文
+        if (data.country_code === 'CN') {
+          setLanguage('zh');
+        } else {
+          setLanguage('en');
+        }
+      } catch (error) {
+        console.error('无法检测地理位置，默认使用中文:', error);
+        setLanguage('zh');
+      }
+    };
+
+    detectUserLocation();
+  }, []);
 
   useEffect(() => {
     if (isProcessing) {
@@ -97,22 +117,25 @@ function App() {
     }
   }, [isProcessing, progress]);
 
+  useEffect(() => {
+    // 根据语言设置页面标题
+    document.title = language === 'zh' ? 'AI学术文章优化助手' : 'DeAI Writing';
+  }, [language]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
     setError(null);
-    setProgress(3); // 开始时的初始进度
+    setProgress(3);
     
     try {
-      console.log('Sending request to optimize text:', inputText);
-      const response = await fetch(`${API_SERVER}/api/optimize`, {
+      console.log('Sending request to backend...');
+      const response = await fetch('http://localhost:3000/api/optimize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          text: inputText
-        })
+        body: JSON.stringify({ text: inputText })
       });
 
       console.log('Response status:', response.status);
@@ -120,14 +143,18 @@ function App() {
       console.log('Response data:', data);
 
       if (!response.ok) {
-        throw new Error(data.error || t.error);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(data)}`);
+      }
+      
+      if (data.error) {
+        throw new Error(data.error);
       }
 
       setOutputText(data.result);
     } catch (err) {
-      console.error('Error during optimization:', err);
+      console.error('Error details:', err);
       setError(err instanceof Error ? err.message : t.unknownError);
-      setOutputText('');
+      setOutputText(''); // 清空输出文本，以防显示旧的结果
     } finally {
       setIsProcessing(false);
     }
@@ -179,7 +206,7 @@ function App() {
               <textarea
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-0 focus:border-indigo-500"
+                className="w-full h-96 p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder={t.textPlaceholder}
               />
               <div className="mt-4 relative">
@@ -194,9 +221,9 @@ function App() {
                 >
                   {progress > 0 && (
                     <div 
-                      className="absolute left-0 top-0 h-full bg-indigo-300 opacity-60 transition-all duration-300" 
+                      className="absolute left-0 top-0 h-full bg-indigo-500 opacity-50 transition-all duration-300"
                       style={{ width: `${progress}%` }}
-                    ></div>
+                    />
                   )}
                   <span className="z-10 flex items-center space-x-2">
                     <Wand2 className="h-5 w-5" />
